@@ -21,10 +21,6 @@ type application struct {
 	logger *log.Logger
 }
 
-func (a *application) healthcheckHandler(res http.ResponseWriter, req *http.Request) {
-
-}
-
 func main() {
 	var cfg config
 
