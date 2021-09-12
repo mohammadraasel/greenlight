@@ -7,10 +7,12 @@ import (
 )
 
 func (app *application) healthcheck(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	data := map[string]string{
-		"status":      "available",
-		"environment": app.config.env,
-		"version":     version,
+	data := envelope{
+		"status": "available",
+		"systemInfo": map[string]string{
+			"environment": app.config.env,
+			"version":     version,
+		},
 	}
 
 	err := app.writeJSON(w, http.StatusOK, data, nil)
