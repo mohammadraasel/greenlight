@@ -7,12 +7,13 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/mohammadraasel/greenlight/internal/data"
+	"github.com/mohammadraasel/greenlight/internal/validator"
 )
 
 func (app *application) createMovie(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var input struct {
 		Title   string       `json:"title"`
-		Year    int          `json:"year"`
+		Year    int32        `json:"year"`
 		Runtime data.Runtime `json:"runtime"`
 		Genres  []string     `json:"genres"`
 	}
@@ -20,6 +21,20 @@ func (app *application) createMovie(w http.ResponseWriter, r *http.Request, _ ht
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
+
+	v := validator.New()
+
+	if data.ValidateMovie(v, movie); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
