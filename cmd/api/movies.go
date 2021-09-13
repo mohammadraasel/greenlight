@@ -11,10 +11,10 @@ import (
 
 func (app *application) createMovie(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var input struct {
-		Title   string   `json:"title"`
-		Year    int      `json:"year"`
-		Runtime int32    `json:"runtime"`
-		Genres  []string `json:"genres"`
+		Title   string       `json:"title"`
+		Year    int          `json:"year"`
+		Runtime data.Runtime `json:"runtime"`
+		Genres  []string     `json:"genres"`
 	}
 
 	err := app.readJSON(w, r, &input)
