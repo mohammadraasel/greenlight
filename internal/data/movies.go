@@ -13,8 +13,8 @@ type Movie struct {
 	Runtime   Runtime   `json:"runtime"`
 	Genres    []string  `json:"genres"`
 	Version   int32     `json:"version"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func ValidateMovie(v *validator.Validator, movie *Movie) {
