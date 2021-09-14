@@ -38,7 +38,19 @@ func (app *application) createMovie(w http.ResponseWriter, r *http.Request, _ ht
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
+	err = app.models.Movies.Insert(movie)
+	if err != nil {
+		app.internalServerErrorResponse(w, r, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/movies/%d", movie.ID))
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"movie": movie}, headers)
+	if err != nil {
+		app.internalServerErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) getMovie(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
