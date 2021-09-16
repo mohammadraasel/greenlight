@@ -13,6 +13,7 @@ func (app *application) routes() *httprouter.Router {
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	router.GET("/v1/healthcheck", app.healthcheck)
+	router.GET("/v1/movies", app.getMovies)
 	router.POST("/v1/movies", app.createMovie)
 	router.GET("/v1/movies/:id", app.getMovie)
 	router.PATCH("/v1/movies/:id", app.updateMovie)
