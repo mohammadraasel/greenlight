@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -13,6 +14,7 @@ import (
 	dotENV "github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/mohammadraasel/greenlight/internal/data"
+	"github.com/mohammadraasel/greenlight/internal/jsonlog"
 )
 
 const version = "1.0.0"
@@ -30,14 +32,15 @@ type config struct {
 
 type application struct {
 	config config
-	logger *log.Logger
+	logger *jsonlog.Logger
 	models data.Models
 }
 
 func main() {
 	var cfg config
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
-	loadEnvs()
+	loadEnvs(logger)
 
 	flag.IntVar(&cfg.port, "port", 5000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
@@ -48,16 +51,14 @@ func main() {
 
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.Fatal(err)
+		logger.PrintFatal(err, nil)
 	}
 
 	defer db.Close()
 
-	logger.Printf("database connection pool established")
+	logger.PrintInfo("database connection pool established", nil)
 
 	app := &application{
 		config: cfg,
@@ -68,14 +69,18 @@ func main() {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
 		Handler:      app.routes(),
+		ErrorLog:     log.New(logger, "", 0),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	logger.Printf("Starting %s server on %s", cfg.env, srv.Addr)
+	logger.PrintInfo("Starting server", map[string]string{
+		"addr": srv.Addr,
+		"env":  cfg.env,
+	})
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.PrintFatal(err, nil)
 }
 
 func openDB(cfg config) (*sql.DB, error) {
@@ -121,10 +126,10 @@ func openDB(cfg config) (*sql.DB, error) {
 	return db, nil
 }
 
-func loadEnvs() {
+func loadEnvs(logger *jsonlog.Logger) {
 	err := dotENV.Load(".env")
 
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		logger.PrintFatal(errors.New("Error loading .env file"), nil)
 	}
 }
