@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"os"
+	"sync"
 
 	dotENV "github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -42,6 +43,7 @@ type application struct {
 	logger *jsonlog.Logger
 	models data.Models
 	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {

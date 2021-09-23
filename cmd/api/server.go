@@ -52,6 +52,7 @@ func (app *application) serve() error {
 		return err
 	}
 
+	app.wg.Wait()
 	// Otherwise, we wait to receive the return value from Shutdown() on the
 	// shutdownError channel. If return value is an error, we know that there was a
 	// problem with the graceful shutdown and we return the error.
