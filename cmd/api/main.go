@@ -97,6 +97,6 @@ func loadEnvs(logger *jsonlog.Logger) {
 	err := dotENV.Load(".env")
 
 	if err != nil {
-		logger.PrintFatal(errors.New("Error loading .env file"), nil)
+		logger.PrintFatal(errors.New("error loading .env file"), nil)
 	}
 }
