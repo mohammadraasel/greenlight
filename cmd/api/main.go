@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"os"
 	"sync"
 
@@ -13,7 +14,10 @@ import (
 	"github.com/mohammadraasel/greenlight/internal/mailer"
 )
 
-const version = "1.0.0"
+var (
+	version   string
+	buildTime string
+)
 
 type config struct {
 	port int
@@ -69,7 +73,17 @@ func main() {
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "a9f6d5780e2dde", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.rasel.net>", "SMTP sender")
 
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	// If the version flag value is true, then print out the version number and
+	// immediately exit.
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		fmt.Printf("Build time:\t%s\n", buildTime)
+		os.Exit(0)
+	}
 
 	db, err := openDB(cfg)
 	if err != nil {
