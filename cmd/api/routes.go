@@ -24,5 +24,5 @@ func (app *application) routes() http.Handler {
 	router.PUT("/v1/users/activated", app.activateUser)
 	router.POST("/v1/tokens/authentication", app.createAuthenticationToken)
 
-	return app.recoverPanic(app.rateLimit(app.authenticate(router)))
+	return app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router))))
 }
