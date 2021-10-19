@@ -2,10 +2,13 @@ package main
 
 import (
 	"errors"
+	"expvar"
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 	"sync"
+	"time"
 
 	dotENV "github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -93,6 +96,23 @@ func main() {
 	defer db.Close()
 
 	logger.PrintInfo("database connection pool established", nil)
+
+	expvar.NewString("version").Set(version)
+
+	// Publish the number of active goroutines.
+	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+		return runtime.NumGoroutine()
+	}))
+
+	// Publish the database connection pool statistics.
+	expvar.Publish("database", expvar.Func(func() interface{} {
+		return db.Stats()
+	}))
+
+	// Publish the current Unix timestamp.
+	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+		return time.Now().Unix()
+	}))
 
 	app := &application{
 		config: cfg,
